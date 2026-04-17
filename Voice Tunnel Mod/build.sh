@@ -20,7 +20,7 @@ find "$MAIN_SRC_DIR" -name '*.java' -print0 | xargs -0 javac -encoding UTF-8 -d 
 cat > "$BUILD_DIR/MANIFEST.MF" <<'MANIFEST'
 Manifest-Version: 1.0
 Implementation-Title: Voice Tunnel Mod
-Implementation-Version: 0.1.0
+Implementation-Version: 0.2.0
 MANIFEST
 
 jar cfm "$JAR_PATH" "$BUILD_DIR/MANIFEST.MF" -C "$CLASSES_DIR" .
@@ -32,5 +32,8 @@ if find "$TEST_SRC_DIR" -name '*.java' | grep -q .; then
   # Run codec self-test
   java -cp "$CLASSES_DIR:$TEST_CLASSES_DIR" voicetunnelmod.protocol.TunnelCodecSelfTest
 fi
+
+# Run loopback demo smoke test
+java -cp "$CLASSES_DIR" voicetunnelmod.demo.LoopbackDemo
 
 echo "Build success: $JAR_PATH"

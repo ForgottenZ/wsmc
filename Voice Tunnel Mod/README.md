@@ -4,6 +4,15 @@
 
 > 对应 `docs/voicechat_wsmc_analysis_zh.md` 的 **方案 A**：新增独立 Voice Tunnel Mod，在客户端/服务端替换 SVC 的 socket 发送路径，并通过隧道转发语音包。
 
+## Fabric 目标版本
+
+- Minecraft: **1.21.1**
+- Fabric Loader: **0.18.4**
+- Fabric API: **0.118.4+1.21.1**
+- Java: **21**
+
+Fabric 子项目路径：`Voice Tunnel Mod/fabric`
+
 ## 已实现内容
 
 - 隧道协议：`TunnelFrame` / `TunnelCodec` / `FrameType` / `Priority`
@@ -11,42 +20,42 @@
 - 客户端隧道：`TunnelClient`
 - 服务端会话层：`TunnelServer` + `TunnelSession`
 - SVC 适配入口：`SvcSocketCompatLayer` + `SvcIntegrationExample`
+- 本地联调通路：`InMemoryTunnelPipe` + `LoopbackDemo`
+- Fabric 入口：`voicetunnelmod.fabric.VoiceTunnelFabricMod`
 
 ## 项目结构
 
-- `src/main/java/voicetunnelmod/protocol`：帧协议与编解码
-- `src/main/java/voicetunnelmod/core`：队列与丢包策略
-- `src/main/java/voicetunnelmod/client`：客户端隧道实现
-- `src/main/java/voicetunnelmod/server`：服务端会话管理
-- `src/main/java/voicetunnelmod/svc`：SVC 接入适配层
+- `src/main/java/voicetunnelmod/*`：隧道核心逻辑
+- `fabric/src/main/java`：Fabric 入口代码
+- `fabric/src/main/resources/fabric.mod.json`：Fabric 元数据
 - `src/test/java`：轻量级自测
 
-## 本地构建（可直接 build）
+## 本地构建
 
-在仓库根目录执行：
+### 1) 核心逻辑本地自测构建
 
 ```bash
 bash "Voice Tunnel Mod/build.sh"
 ```
 
-构建产物：
+### 2) Fabric mod 构建（1.21.1 / loader 0.18.4）
 
-- `Voice Tunnel Mod/build/libs/voice-tunnel-mod.jar`
+```bash
+cd "Voice Tunnel Mod/fabric"
+gradle -p "Voice Tunnel Mod/fabric" clean build
+```
 
-脚本会执行：
-1. 编译主代码
-2. 打包 jar
-3. 编译并执行 `TunnelCodecSelfTest`
+产物路径：
 
-## GitHub Actions 手动构建
+- `Voice Tunnel Mod/fabric/build/libs/voice-tunnel-mod-fabric-<version>.jar`
 
-已提供工作流：`.github/workflows/voice-tunnel-mod-build.yml`
+## GitHub Actions（手动触发）
 
-使用方式：
-1. 进入 GitHub 仓库页面 -> **Actions**
-2. 选择 **Build Voice Tunnel Mod (manual)**
-3. 点击 **Run workflow**
-4. 在 Artifacts 中下载 `voice-tunnel-mod-jar`
+- `.github/workflows/voice-tunnel-mod-build.yml`
+  - 构建并上传：`voice-tunnel-mod-fabric-mc1.21.1-loader0.18.4`
+- `.github/workflows/voice-tunnel-mod-release.yml`
+  - 手动输入 `version`
+  - 上传版本化 jar，文件名带 `mc1.21.1-loader0.18.4`
 
 ## 接入 SVC 的最小路径
 
