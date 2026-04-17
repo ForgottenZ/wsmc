@@ -8,7 +8,7 @@
 
 - Minecraft: **1.21.1**
 - Fabric Loader: **0.18.4**
-- Fabric API: **0.118.4+1.21.1**
+- Fabric API: **0.116.9+1.21.1**
 - Java: **21**
 
 Fabric 子项目路径：`Voice Tunnel Mod/fabric`
