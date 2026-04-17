@@ -1,0 +1,32 @@
+name: Build Voice Tunnel Mod Fabric (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-fabric:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+
+      - name: Build Fabric mod jar (MC 1.21.1 / Loader 0.18.4)
+        run: gradle -p "Voice Tunnel Mod/fabric" --no-daemon clean build
+
+      - name: Upload Fabric jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-tunnel-mod-fabric-mc1.21.1-loader0.18.4
+          path: "Voice Tunnel Mod/fabric/build/libs/voice-tunnel-mod-fabric-*.jar"
+          if-no-files-found: error
