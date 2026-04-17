@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "voice_tunnel_mod",
+  "version": "${version}",
+  "name": "Voice Tunnel Mod",
+  "description": "SVC compatibility layer for UDP-over-TCP/WebSocket tunneling.",
+  "authors": [
+    "wsmc contributor"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "voicetunnelmod.fabric.VoiceTunnelFabricMod"
+    ],
+    "client": [
+      "voicetunnelmod.fabric.VoiceTunnelFabricClientMod"
+    ]
+  },
+  "mixins": [
+    "voice_tunnel_mod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "fabric-api": ">=${fabric_api_version}",
+    "java": ">=21"
+  },
+  "suggests": {
+    "voicechat": "*"
+  }
+}
