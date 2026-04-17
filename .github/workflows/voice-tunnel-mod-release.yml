@@ -1,0 +1,42 @@
+name: Release Voice Tunnel Mod Fabric (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.2.0+mc1.21.1)'
+        required: true
+        default: '0.2.0+mc1.21.1'
+
+jobs:
+  release-fabric:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.2.0
+
+      - name: Build Fabric mod jar
+        run: gradle -p "Voice Tunnel Mod/fabric" --no-daemon clean build -Pmod_version="${{ github.event.inputs.version }}"
+
+      - name: Prepare release artifact
+        run: |
+          mkdir -p release
+          cp "Voice Tunnel Mod/fabric/build/libs/voice-tunnel-mod-fabric-${{ github.event.inputs.version }}.jar" "release/voice-tunnel-mod-fabric-${{ github.event.inputs.version }}-mc1.21.1-loader0.18.4.jar"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-tunnel-mod-fabric-${{ github.event.inputs.version }}
+          path: release/*.jar
+          if-no-files-found: error
