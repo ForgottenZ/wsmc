@@ -40,6 +40,8 @@ bash "Voice Tunnel Mod/build.sh"
 
 ### 2) Fabric mod 构建（1.21.1 / loader 0.18.4）
 
+> 建议使用 Gradle **9.2.0**（与当前 Loom 插件元数据匹配）。
+
 ```bash
 cd "Voice Tunnel Mod/fabric"
 gradle -p "Voice Tunnel Mod/fabric" clean build

@@ -19,7 +19,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.10.2
+          gradle-version: 9.2.0
 
       - name: Build Fabric mod jar (MC 1.21.1 / Loader 0.18.4)
         run: gradle -p "Voice Tunnel Mod/fabric" --no-daemon clean build
