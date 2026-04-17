@@ -59,6 +59,23 @@ gradle -p "Voice Tunnel Mod/fabric" clean build
   - 手动输入 `version`
   - 上传版本化 jar，文件名带 `mc1.21.1-loader0.18.4`
 
+
+## 真正生效模式（默认）
+
+从本版本开始，语音默认通过 **Minecraft 主连接（TCP/WS）** 转发：
+
+- Client 侧拦截 SVC 的 `ClientVoicechatSocketImpl.send/read/open`
+- Server 侧拦截 SVC 的 `VoicechatSocketImpl.send/read/open`
+- 使用 Fabric 自定义网络包在 C2S/S2C 方向转发语音 payload
+
+这意味着在你的默认场景（`ws://example.com` 背后是安装了 WSMC 的 Minecraft 服务器）下，不需要额外 UDP 通路。
+
+可通过 JVM 参数关闭：
+
+```
+-Dvtm.enable=false
+```
+
 ## 接入 SVC 的最小路径
 
 1. 客户端把原 `DatagramSocket.send()` 替换为 `SvcSocketCompatLayer.sendVoicePacket()`。
