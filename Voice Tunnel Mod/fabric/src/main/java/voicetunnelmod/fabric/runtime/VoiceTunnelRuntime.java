@@ -1,12 +1,12 @@
 package voicetunnelmod.fabric.runtime;
 
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
@@ -17,9 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class VoiceTunnelRuntime {
-    public static final Identifier C2S_VOICE_ID = new Identifier("voice_tunnel_mod", "svc_voice_c2s");
-    public static final Identifier S2C_VOICE_ID = new Identifier("voice_tunnel_mod", "svc_voice_s2c");
-
     private static final boolean ENABLED = Boolean.parseBoolean(System.getProperty("vtm.enable", "true"));
 
     private static final ConcurrentLinkedQueue<Object> CLIENT_INBOUND = new ConcurrentLinkedQueue<>();
@@ -29,12 +26,23 @@ public final class VoiceTunnelRuntime {
     private static final Map<String, ServerPlayerEntity> VIRTUAL_TO_PLAYER = new ConcurrentHashMap<>();
 
     private static volatile Constructor<?> rawUdpPacketCtor;
+    private static volatile boolean payloadRegistered;
 
     private VoiceTunnelRuntime() {
     }
 
     public static boolean enabled() {
         return ENABLED;
+    }
+
+    public static synchronized void registerPayloadTypes() {
+        if (payloadRegistered) {
+            return;
+        }
+
+        PayloadTypeRegistry.playC2S().register(C2SVoicePayload.ID, C2SVoicePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(S2CVoicePayload.ID, S2CVoicePayload.CODEC);
+        payloadRegistered = true;
     }
 
     public static void onClientInbound(byte[] data) {
@@ -81,9 +89,7 @@ public final class VoiceTunnelRuntime {
     }
 
     public static void sendVoiceFromClient(byte[] data) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeByteArray(data);
-        ClientPlayNetworking.send(C2S_VOICE_ID, buf);
+        ClientPlayNetworking.send(new C2SVoicePayload(data));
     }
 
     public static void sendVoiceFromServer(byte[] data, SocketAddress address) {
@@ -92,9 +98,7 @@ public final class VoiceTunnelRuntime {
             return;
         }
 
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeByteArray(data);
-        ServerPlayNetworking.send(player, S2C_VOICE_ID, buf);
+        ServerPlayNetworking.send(player, new S2CVoicePayload(data));
     }
 
     public static void onPlayerDisconnect(ServerPlayerEntity player) {
@@ -115,6 +119,30 @@ public final class VoiceTunnelRuntime {
             return ctor.newInstance(data, address, System.currentTimeMillis());
         } catch (Throwable t) {
             return null;
+        }
+    }
+
+    public record C2SVoicePayload(byte[] data) implements CustomPayload {
+        public static final Id<C2SVoicePayload> ID = CustomPayload.id("voice_tunnel_mod:svc_voice_c2s");
+        public static final PacketCodec<PacketByteBuf, C2SVoicePayload> CODEC =
+                CustomPayload.codecOf((value, buf) -> buf.writeByteArray(value.data),
+                        buf -> new C2SVoicePayload(buf.readByteArray()));
+
+        @Override
+        public Id<? extends CustomPayload> getId() {
+            return ID;
+        }
+    }
+
+    public record S2CVoicePayload(byte[] data) implements CustomPayload {
+        public static final Id<S2CVoicePayload> ID = CustomPayload.id("voice_tunnel_mod:svc_voice_s2c");
+        public static final PacketCodec<PacketByteBuf, S2CVoicePayload> CODEC =
+                CustomPayload.codecOf((value, buf) -> buf.writeByteArray(value.data),
+                        buf -> new S2CVoicePayload(buf.readByteArray()));
+
+        @Override
+        public Id<? extends CustomPayload> getId() {
+            return ID;
         }
     }
 }

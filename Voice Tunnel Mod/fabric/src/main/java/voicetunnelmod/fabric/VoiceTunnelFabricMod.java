@@ -16,11 +16,11 @@ public class VoiceTunnelFabricMod implements ModInitializer {
             return;
         }
 
-        ServerPlayNetworking.registerGlobalReceiver(VoiceTunnelRuntime.C2S_VOICE_ID,
-                (server, player, handler, buf, responseSender) -> {
-                    byte[] data = buf.readByteArray();
-                    server.execute(() -> VoiceTunnelRuntime.onServerInbound(player, data));
-                });
+        VoiceTunnelRuntime.registerPayloadTypes();
+
+        ServerPlayNetworking.registerGlobalReceiver(VoiceTunnelRuntime.C2SVoicePayload.ID,
+                (payload, context) -> context.server().execute(
+                        () -> VoiceTunnelRuntime.onServerInbound(context.player(), payload.data())));
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
                 VoiceTunnelRuntime.onPlayerDisconnect(handler.getPlayer()));

@@ -11,11 +11,11 @@ public class VoiceTunnelFabricClientMod implements ClientModInitializer {
             return;
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(VoiceTunnelRuntime.S2C_VOICE_ID,
-                (client, handler, buf, responseSender) -> {
-                    byte[] data = buf.readByteArray();
-                    client.execute(() -> VoiceTunnelRuntime.onClientInbound(data));
-                });
+        VoiceTunnelRuntime.registerPayloadTypes();
+
+        ClientPlayNetworking.registerGlobalReceiver(VoiceTunnelRuntime.S2CVoicePayload.ID,
+                (payload, context) -> context.client().execute(
+                        () -> VoiceTunnelRuntime.onClientInbound(payload.data())));
 
         System.out.println("[VoiceTunnelMod] client bridge enabled: SVC voice over Minecraft TCP channel");
     }
