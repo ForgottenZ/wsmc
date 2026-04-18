@@ -7,6 +7,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
@@ -123,7 +124,7 @@ public final class VoiceTunnelRuntime {
     }
 
     public record C2SVoicePayload(byte[] data) implements CustomPayload {
-        public static final Id<C2SVoicePayload> ID = CustomPayload.id("voice_tunnel_mod:svc_voice_c2s");
+        public static final Id<C2SVoicePayload> ID = new Id<>(Identifier.of("voice_tunnel_mod", "svc_voice_c2s"));
         public static final PacketCodec<PacketByteBuf, C2SVoicePayload> CODEC =
                 CustomPayload.codecOf((value, buf) -> buf.writeByteArray(value.data),
                         buf -> new C2SVoicePayload(buf.readByteArray()));
@@ -135,7 +136,7 @@ public final class VoiceTunnelRuntime {
     }
 
     public record S2CVoicePayload(byte[] data) implements CustomPayload {
-        public static final Id<S2CVoicePayload> ID = CustomPayload.id("voice_tunnel_mod:svc_voice_s2c");
+        public static final Id<S2CVoicePayload> ID = new Id<>(Identifier.of("voice_tunnel_mod", "svc_voice_s2c"));
         public static final PacketCodec<PacketByteBuf, S2CVoicePayload> CODEC =
                 CustomPayload.codecOf((value, buf) -> buf.writeByteArray(value.data),
                         buf -> new S2CVoicePayload(buf.readByteArray()));
