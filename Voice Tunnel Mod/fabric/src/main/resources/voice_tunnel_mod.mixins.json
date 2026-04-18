@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "voicetunnelmod.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MixinServerVoicechatSocketImpl",
+    "MixinClientVoicechatSocketImpl"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
